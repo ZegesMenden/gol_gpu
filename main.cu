@@ -460,6 +460,8 @@ int main(void)
     total_time = 0;
     total_cells = 0;
 
+    auto time_sim_start = std::chrono::high_resolution_clock::now();
+
     while(true) {
         auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -532,10 +534,16 @@ int main(void)
         total_cells += width*height*16;
 
         printf("\rgcells/s: %.2f", (float(total_cells)/(float(total_time))/1000));
+
+        // stop after 30 seconds
+        long long time_since_sim_start = (std::chrono::duration_cast<std::chrono::nanoseconds>(end_time_b - time_sim_start).count());
+        if ( time_since_sim_start/1000000 > 30000 ) { break; }
     }
 
     // Free memory
-    // cudaFree();
+    cudaFree(sim_device_0);
+    cudaFree(sim_device_1);
+    free(sim_host);
     
     return 0;
 }
